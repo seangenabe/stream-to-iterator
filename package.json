@@ -1,0 +1,56 @@
+{
+  "name": "stream-to-iterator",
+  "version": "1.0.0-1",
+  "description": "Convert a node.js stream into an iterator.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel lib --out-dir dist",
+    "pretest": "npm run build",
+    "test": "ava",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seangenabe/stream-to-iterator.git"
+  },
+  "keywords": [
+    "iterator",
+    "stream",
+    "readable",
+    "adapter",
+    "es2015",
+    "es6",
+    "async",
+    "promise"
+  ],
+  "author": "Sean Genabe <seangenabe@outlook.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/seangenabe/stream-to-iterator/issues"
+  },
+  "homepage": "https://github.com/seangenabe/stream-to-iterator#readme",
+  "engines": {
+    "node": ">=6.5"
+  },
+  "dependencies": {
+    "nodeify": "^1.0.0"
+  },
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "babel-cli": "^6.18.0",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "delay": "^1.3.1",
+    "eslint": "^3.12.2",
+    "eslint-config-mirage": "^2.1.0",
+    "p-map-series": "^1.0.0"
+  },
+  "ava": {
+    "files": [
+      "test/**/*.js"
+    ],
+    "source": [
+      "dist/**/*.js"
+    ],
+    "timeout": "10s"
+  }
+}
