@@ -41,7 +41,7 @@
     "babel-plugin-transform-async-to-generator": "^6.16.0",
     "delay": "^2.0.0",
     "eslint": "^4.1.0",
-    "eslint-config-mirage": "^4.0.0",
+    "eslint-config-mirage": "^5.0.0",
     "p-map-series": "^1.0.0"
   },
   "ava": {
