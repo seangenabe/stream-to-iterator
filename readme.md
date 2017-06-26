@@ -1,5 +1,7 @@
 # stream-to-iterator
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/seangenabe/stream-to-iterator.svg)](https://greenkeeper.io/)
+
 Converts a node.js stream into an iterator.
 
 ## Usage
