@@ -73,3 +73,7 @@ Errors:
 * The iterator will also rethrow any error emitted by the source stream on the next iteration read from it after the error is handled.
 
 <small>Nasty secret: the _underlying stream_ and the _iterator_ are the same thing!</small>
+
+## See also
+
+* [async-iter-stream](https://github.com/calvinmetcalf/async-iter-stream) - similar module with `Symbol.asyncIterator` support.
