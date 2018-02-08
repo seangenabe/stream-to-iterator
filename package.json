@@ -2,11 +2,10 @@
   "name": "stream-to-iterator",
   "version": "2.0.0",
   "description": "Convert a node.js stream into an iterator.",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "build": "babel lib --out-dir dist",
-    "pretest": "npm run build",
-    "test": "ava",
+    "build": "tsc --project .",
+    "test": "npm run build && node --harmony_async_iteration node_modules/ava/cli.js",
     "lint": "eslint ."
   },
   "repository": {
@@ -33,24 +32,24 @@
     "node": ">=6.5"
   },
   "dependencies": {
-    "nodeify": "^1.0.0"
+    "p-defer": "1.0.0",
+    "pump": "^3.0.0"
   },
   "devDependencies": {
-    "ava": "^0.25.0",
-    "babel-cli": "^6.18.0",
-    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "@types/node": "^9.4.1",
+    "ava": "^1.0.0-beta.1",
     "delay": "^2.0.0",
-    "eslint": "^4.1.0",
-    "eslint-config-mirage": "^5.0.0",
-    "p-map-series": "^1.0.0"
+    "typescript": "^2.7.1"
   },
   "ava": {
     "files": [
       "test/**/*.js"
     ],
-    "source": [
-      "dist/**/*.js"
+    "sources": [
+      "lib/**/*.js"
     ],
-    "timeout": "10s"
+    "timeout": "10s",
+    "babel": false,
+    "compileEnhancements": false
   }
 }

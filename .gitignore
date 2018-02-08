@@ -2,3 +2,6 @@ dist
 node_modules/
 *.log
 *.log.*
+**/*.js
+**/*.js.map
+**/*.d.ts
