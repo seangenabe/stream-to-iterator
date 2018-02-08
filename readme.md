@@ -2,7 +2,10 @@
 
 Converts a node.js stream into an iterator.
 
-[![Build Status](https://img.shields.io/travis/seangenabe/chastifol/master.svg?style=flat-square)](https://travis-ci.org/seangenabe/stream-to-iterator)
+[![Build Status](https://img.shields.io/travis/seangenabe/stream-to-iterator/master.svg?style=flat-square)](https://travis-ci.org/seangenabe/stream-to-iterator)
+[![Dependency Status](https://img.shields.io/david/seangenabe/stream-to-iterator.svg?style=flat-square)](https://david-dm.org/seangenabe/stream-to-iterator)
+[![devDependency Status](https://img.shields.io/david/dev/seangenabe/stream-to-iterator.svg?style=flat-square)](https://david-dm.org/seangenabe/stream-to-iterator#info=devDependencies)
+[![node](https://img.shields.io/node/v/stream-to-iterator.svg?style=flat-square)](https://nodejs.org/en/download/)
 
 ## Usage
 
