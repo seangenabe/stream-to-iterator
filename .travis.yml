@@ -1,5 +1,11 @@
 language: node_js
 node_js:
-  - "8"
+  - "8.9"
   - "9"
-  - "nightly"
+matrix:
+  include:
+    - node_js: "10"
+      env: "NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly"
+  allow_failures:
+    - env: "NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly"
+sudo: false
