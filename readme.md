@@ -7,18 +7,20 @@ Converts a node.js stream into an iterator.
 With _for-await-of_:
 
 ```javascript
-const streamToIterator = require('stream-to-iterator')
-const intoStream = require('into-stream')
+(async () => {
+  const streamToIterator = require('stream-to-iterator')
+  const intoStream = require('into-stream')
 
-const readable = intoStream.obj([2, 3, 4])
-const iterator = streamToIterator(readable)
-const allValues = []
+  const readable = intoStream.obj([2, 3, 4])
+  const iterator = streamToIterator(readable)
+  const allValues = []
 
-for await (let value of iterator) {
-  allValues.push(value * value)
-}
+  for await (let value of iterator) {
+    allValues.push(value * value)
+  }
 
-console.log(allValues) // [ 4, 9, 16 ]
+  console.log(allValues) // [ 4, 9, 16 ]
+})()
 ```
 
 ## API
