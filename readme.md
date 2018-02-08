@@ -2,6 +2,8 @@
 
 Converts a node.js stream into an iterator.
 
+[![Build Status](https://img.shields.io/travis/seangenabe/chastifol/master.svg?style=flat-square)](https://travis-ci.org/seangenabe/stream-to-iterator)
+
 ## Usage
 
 With _for-await-of_:
