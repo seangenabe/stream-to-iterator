@@ -50,6 +50,7 @@ The old mode implementing `Iterator<Promise<T>>` is _still supported_. However, 
 * `streamToIterator` does not return a `Promise` anymore.
 * To get an instance of the iterator, call `[Symbol.iterator]()` on the return value.
 * Call `await init()` on the returned iterator to initialize it. This is the equivalent of calling the removed `Promise` interface on the original function.
+* As with the new API, calling `Iterator#next` before waiting for the promise to finish will return the same value as the previous iteration.
 
 ```javascript
 const iterator = await streamToIterator(readable).init()
@@ -66,11 +67,7 @@ The old consumption rules still apply:
 * The iteration value returned will be of type `Promise<T>`. To get the iteration value, the consumer must wait for the resolution of that promised value.
 * The consumer **must not** prematurely get the next value of the iterator (i.e. call Iterator#next()) until such time that the current promise value of the iterator is resolved.
 
-The iterator throws with:
-
-* Error
-  * If the iterator was called before the first chunk was received.
-  * If the iterator was called before the next chunk on the stream has been read.
+The iterator throws if the iterator was called before the first chunk was received.
 
 ## See also
 

@@ -1,16 +1,16 @@
 import { Writable, WritableOptions } from 'stream'
-import { callbackify } from 'util'
 import pDefer = require('p-defer')
 import Initializable = require('./initializable')
+//import { debuglog } from 'util'
 
+//const log = debuglog('s2i')
+const log = console.log
 const EOS = Symbol('EOS')
 const UNINITIALIZED = Symbol('UNINITIALIZED')
 const ASYNC_ITERATOR_NOT_FOUND = Symbol()
 
 enum State {
-  PreWrite,
-  WaitForWrite,
-  WaitForIteratorConsume,
+  Main,
   Finished
 }
 
@@ -23,57 +23,55 @@ class IteratorWritable<T> extends Writable implements AsyncIterableIterator<T> {
 
   constructor(opts?: WritableOptions) {
     super(opts)
-    this.state = State.PreWrite
+    log('constructor')
     this.end = this.end2.bind(this)
-    this.write = callbackify((chunk, enc) => this.writeAsync(chunk, enc)) as any
     this.previousValue = UNINITIALIZED
+    this.state = State.Main
     this.run()
   }
 
   async run() {
-    let writeBox: Deferred<T | symbol> = pDefer()
-    writeBox.resolve(UNINITIALIZED)
     this.once('error', err => {
       this.state = State.Finished
       this.err = err
     })
-    while (true) {
-      switch (this.state) {
-        case State.PreWrite: {
-          writeBox = pDefer()
-          this.state = State.WaitForWrite
-          break
-        }
-        case State.WaitForWrite: {
-          if (writeBox) {
-            this.previousValue = await writeBox.promise
-          }
-          this.iteratorConsumed = pDefer()
-          this.state = State.WaitForIteratorConsume
-          break
-        }
-        case State.WaitForIteratorConsume: {
-          await this.iteratorConsumed.promise
-          if (writeBox && (await writeBox.promise) === EOS) {
-            this.state = State.Finished
-          } else {
-            this.state = State.PreWrite
-          }
-          break
-        }
+    while (this.state !== State.Finished) {
+      log(`state transition: ${State[this.state]}`)
+
+      this.writeBox = pDefer()
+      this.iteratorConsumed = pDefer()
+      this.previousValue = await this.writeBox.promise
+
+      await this.iteratorConsumed.promise
+      if (this.previousValue === EOS) {
+        this.state = State.Finished
       }
+      // else continue
     }
   }
 
+  _write(chunk: any, encoding: string, callback: (err?: Error) => void): void {
+    ;(async () => {
+      try {
+        await this.writeAsync(chunk, encoding)
+        callback()
+      } catch (err) {
+        callback(err)
+      }
+    })()
+  }
+
   async writeAsync(chunk: T, enc: string) {
-    if (this.state != State.PreWrite) {
+    log(`write: ${chunk}`)
+    if (this.state != State.Main) {
       throw new Error('Not ready for writing.')
     }
     this.writeBox.resolve(chunk)
   }
 
   endRequest() {
-    if (this.state != State.PreWrite) {
+    log('end')
+    if (this.state != State.Main) {
       throw new Error('Not ready for writing.')
     }
     this.writeBox.resolve(EOS)
@@ -90,6 +88,7 @@ class IteratorWritable<T> extends Writable implements AsyncIterableIterator<T> {
   }
 
   async next(): Promise<IteratorResult<T>> {
+    log('next')
     if (this.state === State.Finished) {
       const { err } = this
       if (err) {
@@ -97,8 +96,9 @@ class IteratorWritable<T> extends Writable implements AsyncIterableIterator<T> {
       }
       return { done: true } as IteratorResult<T>
     }
-    const val = await this.writeBox.promise
     this.iteratorConsumed.resolve(true)
+    const val = await this.writeBox.promise
+    log(`returning value to iterator`, val)
     if (val === EOS) {
       return { done: true } as IteratorResult<T>
     } else {
@@ -107,12 +107,14 @@ class IteratorWritable<T> extends Writable implements AsyncIterableIterator<T> {
   }
 
   async init(): Promise<this> {
-    this.previousValue = await this.writeBox.promise
+    log('init')
     this.iteratorConsumed.resolve(true)
+    this.previousValue = await this.writeBox.promise
     return this
   }
 
   legacyNext(): IteratorResult<Promise<T>> {
+    log(`legacyNext`)
     if (this.state === State.Finished) {
       const { err } = this
       if (err) {
@@ -120,20 +122,17 @@ class IteratorWritable<T> extends Writable implements AsyncIterableIterator<T> {
       }
       return { done: true } as IteratorResult<Promise<T>>
     }
-    if (this.state !== State.WaitForIteratorConsume) {
-      throw new Error('Cannot request for an iteration yet.')
-    }
     const { previousValue } = this
     if (previousValue === UNINITIALIZED) {
       throw new Error('Must call init() first.')
     }
-    this.iteratorConsumed.resolve(true)
     if (previousValue === EOS) {
       return { done: true } as IteratorResult<Promise<T>>
     } else {
       return {
         done: false,
         value: (async (): Promise<T> => {
+          this.iteratorConsumed.resolve(true)
           await this.writeBox.promise
           return previousValue as T
         })()

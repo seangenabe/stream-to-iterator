@@ -40,7 +40,8 @@ test('stream one value', async t => {
     let iteration = await x.next()
     checkIteration(t, iteration, value)
   }
-  t.true((await x.next()).done)
+  const iteration = await x.next()
+  t.true(iteration.done)
 })
 
 test('stream some values (legacy)', async t => {
@@ -66,13 +67,18 @@ test('stream some values', async t => {
   t.true((await x.next()).done)
 })
 
-test('error on fast iteration (legacy)', async t => {
+test('same value on fast iteration (legacy)', async t => {
   let values = [1, 2, 3]
   let stream = createReadable({ objectMode: true }, values)
   let x = await streamToIterator<number>(stream)[Symbol.iterator]()
   await x.init()
-  x.next()
-  t.throws(() => x.next())
+  const r1 = x.next()
+  const r2 = x.next()
+  const v1 = await r1.value
+  const v2 = await r2.value
+  t.false(r1.done)
+  t.false(r2.done)
+  t.is(v1, v2)
 })
 
 test('same value on fast iteration', async t => {
@@ -81,7 +87,11 @@ test('same value on fast iteration', async t => {
   let x = await streamToIterator<number>(stream)
   const p1 = x.next()
   const p2 = x.next()
-  t.is(await p1, await p2)
+  const r1 = await p1
+  const r2 = await p2
+  t.false(r1.done)
+  t.false(r2.done)
+  t.is(r1.value, r2.value)
 })
 
 test('stream some values on non-object mode (legacy)', async t => {
