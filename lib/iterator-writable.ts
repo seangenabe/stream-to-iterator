@@ -1,10 +1,10 @@
 import { Writable, WritableOptions } from 'stream'
 import pDefer = require('p-defer')
 import Initializable = require('./initializable')
-//import { debuglog } from 'util'
+import { debuglog } from 'util'
 
-//const log = debuglog('s2i')
-const log = console.log
+const log = debuglog('s2i')
+//const log = console.log
 const EOS = Symbol('EOS')
 const UNINITIALIZED = Symbol('UNINITIALIZED')
 const ASYNC_ITERATOR_NOT_FOUND = Symbol()
@@ -14,7 +14,8 @@ enum State {
   Finished
 }
 
-class IteratorWritable<T> extends Writable implements AsyncIterableIterator<T> {
+class IteratorWritable<T = any> extends Writable
+  implements AsyncIterableIterator<T> {
   private state: State
   private writeBox: Deferred<T | symbol>
   private previousValue: T | symbol

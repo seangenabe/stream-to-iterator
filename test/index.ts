@@ -95,30 +95,32 @@ test('same value on fast iteration', async t => {
 })
 
 test('stream some values on non-object mode (legacy)', async t => {
-  let values = Buffer.from([65, 66, 67])
+  let values = [Buffer.from([65, 66, 67]), Buffer.from([68, 69])]
   let stream = createReadable({}, values)
-  let x = streamToIterator<number>(stream)[Symbol.iterator]()
+  let x = streamToIterator<Buffer>(stream)[Symbol.iterator]()
   await x.init()
   for (let expected of values) {
     let iteration = x.next()
     t.false(iteration.done)
     let actual = await iteration.value
-    t.true(expected === actual)
+    t.true(expected.equals(actual))
   }
   t.true(x.next().done)
 })
 
 test('stream some values on non-object mode', async t => {
-  let values = Buffer.from([65, 66, 67])
+  let values = [Buffer.from([65, 66, 67]), Buffer.from([68, 69])]
   let stream = createReadable({}, values)
-  let x = streamToIterator<number>(stream)
+  let x = streamToIterator<Buffer>(stream)
+
   for (let expected of values) {
     let iteration = await x.next()
     t.false(iteration.done)
-    let actual = await iteration.value
-    t.true(expected === actual)
+    t.true(expected.equals(iteration.value))
   }
-  t.true((await x.next()).done)
+
+  const lastIteration = await x.next()
+  t.true(lastIteration.done)
 })
 
 test('readme example 1', async t => {
@@ -178,18 +180,14 @@ function checkIteration<T>(
   t.deepEqual(value, expected)
 }
 
-function createReadable<T>(opts: TransformOptions, items: T[] | Buffer = []) {
+function createReadable<T>(opts: TransformOptions, items: T[]) {
   let ret = new PassThrough(opts)
-  if (items instanceof Buffer) {
-    ret.write(items)
-  } else {
-    ;(async () => {
-      for (let item of items) {
-        ret.write(item)
-        await delay(10)
-      }
-      ret.end()
-    })()
-  }
+  ;(async () => {
+    for (let item of items) {
+      ret.write(item)
+      await delay(10)
+    }
+    ret.end()
+  })()
   return ret
 }
