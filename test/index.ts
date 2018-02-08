@@ -1,10 +1,9 @@
 import test, { TestContext } from 'ava'
 import streamToIterator = require('../lib/index')
-import { PassThrough, TransformOptions } from 'stream'
-import delay = require('delay')
+import intoStream = require('into-stream')
 
 test('empty stream (legacy)', async t => {
-  let stream = createReadable({ objectMode: true }, [])
+  let stream = intoStream.obj([])
   let x = streamToIterator<never>(stream)[Symbol.iterator]()
   await x.init()
   let i = x.next()
@@ -12,7 +11,7 @@ test('empty stream (legacy)', async t => {
 })
 
 test('empty stream', async t => {
-  let stream = createReadable({ objectMode: true }, [])
+  let stream = intoStream.obj([])
   let x = await streamToIterator<never>(stream)
   await x.init()
   let i = await x.next()
@@ -21,7 +20,7 @@ test('empty stream', async t => {
 
 test('stream one value (legacy)', async t => {
   let values = ['abc']
-  let stream = createReadable({ objectMode: true }, values)
+  let stream = intoStream.obj(values)
   let x = streamToIterator<string>(stream)[Symbol.iterator]()
   await x.init()
   for (let value of values) {
@@ -33,7 +32,7 @@ test('stream one value (legacy)', async t => {
 
 test('stream one value', async t => {
   let values = ['abc']
-  let stream = createReadable({ objectMode: true }, values)
+  let stream = intoStream.obj(values)
   let x = await streamToIterator<string>(stream)
 
   for (let value of values) {
@@ -46,7 +45,7 @@ test('stream one value', async t => {
 
 test('stream some values (legacy)', async t => {
   let values = [5, 'b', Infinity, 'e', 'p']
-  let stream = createReadable({ objectMode: true }, values)
+  let stream = intoStream.obj(values)
   let x = streamToIterator<number | string>(stream)[Symbol.iterator]()
   await x.init()
   for (let value of values) {
@@ -58,7 +57,7 @@ test('stream some values (legacy)', async t => {
 
 test('stream some values', async t => {
   let values = [5, 'b', Infinity, 'e', 'p']
-  let stream = createReadable({ objectMode: true }, values)
+  let stream = intoStream.obj(values)
   let x = streamToIterator<number | string>(stream)
   for (let value of values) {
     let iteration = await x.next()
@@ -69,7 +68,7 @@ test('stream some values', async t => {
 
 test('same value on fast iteration (legacy)', async t => {
   let values = [1, 2, 3]
-  let stream = createReadable({ objectMode: true }, values)
+  let stream = intoStream.obj(values)
   let x = await streamToIterator<number>(stream)[Symbol.iterator]()
   await x.init()
   const r1 = x.next()
@@ -83,7 +82,7 @@ test('same value on fast iteration (legacy)', async t => {
 
 test('same value on fast iteration', async t => {
   let values = [1, 2, 3]
-  let stream = createReadable({ objectMode: true }, values)
+  let stream = intoStream.obj(values)
   let x = await streamToIterator<number>(stream)
   const p1 = x.next()
   const p2 = x.next()
@@ -96,7 +95,7 @@ test('same value on fast iteration', async t => {
 
 test('stream some values on non-object mode (legacy)', async t => {
   let values = [Buffer.from([65, 66, 67]), Buffer.from([68, 69])]
-  let stream = createReadable({}, values)
+  let stream = intoStream(values)
   let x = streamToIterator<Buffer>(stream)[Symbol.iterator]()
   await x.init()
   for (let expected of values) {
@@ -110,7 +109,7 @@ test('stream some values on non-object mode (legacy)', async t => {
 
 test('stream some values on non-object mode', async t => {
   let values = [Buffer.from([65, 66, 67]), Buffer.from([68, 69])]
-  let stream = createReadable({}, values)
+  let stream = intoStream(values)
   let x = streamToIterator<Buffer>(stream)
 
   for (let expected of values) {
@@ -124,8 +123,8 @@ test('stream some values on non-object mode', async t => {
 })
 
 test('readme example 1', async t => {
-  const values = [3, 2, 5]
-  const readable = createReadable({ objectMode: true }, values)
+  const values = [2, 3, 4]
+  const readable = intoStream.obj(values)
   const iterator = await streamToIterator<number>(readable)
     [Symbol.iterator]()
     .init()
@@ -133,31 +132,23 @@ test('readme example 1', async t => {
 
   for (let valuePromise of iterator) {
     const value = await valuePromise
-    allValues.push(processIterationValue(value))
+    allValues.push(value * value)
   }
 
-  t.deepEqual(allValues, [9, 4, 25])
-
-  function processIterationValue(value) {
-    return value * value
-  }
+  t.deepEqual(allValues, [4, 9, 16])
 })
 
 test('readme example 2', async t => {
-  let values = [5, 3, 2]
-  let readable = createReadable({ objectMode: true }, values)
+  let values = [2, 3, 4]
+  let readable = intoStream.obj(values)
   let iterator = streamToIterator<number>(readable)
   let allValues: number[] = []
 
   for await (let value of iterator) {
-    allValues.push(processIterationValue(value))
+    allValues.push(value * value)
   }
 
-  t.deepEqual(allValues, [25, 9, 4])
-
-  function processIterationValue(value) {
-    return value * value
-  }
+  t.deepEqual(allValues, [4, 9, 16])
 })
 
 async function checkLegacyIteration<T>(
@@ -178,16 +169,4 @@ function checkIteration<T>(
   t.false(iteration.done)
   let value = iteration.value
   t.deepEqual(value, expected)
-}
-
-function createReadable<T>(opts: TransformOptions, items: T[]) {
-  let ret = new PassThrough(opts)
-  ;(async () => {
-    for (let item of items) {
-      ret.write(item)
-      await delay(10)
-    }
-    ret.end()
-  })()
-  return ret
 }

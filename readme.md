@@ -8,20 +8,17 @@ With _for-await-of_:
 
 ```javascript
 const streamToIterator = require('stream-to-iterator')
+const intoStream = require('into-stream')
 
-//const readable = ...
-const iterator = streamToIterator(readable, opts)
+const readable = intoStream.obj([2, 3, 4])
+const iterator = streamToIterator(readable)
 const allValues = []
 
 for await (let value of iterator) {
-  allValues.push(processIterationValue(value))
+  allValues.push(value * value)
 }
 
-console.log(allValues)
-
-function processIterationValue(value) {
-  // ...
-}
+console.log(allValues) // [ 4, 9, 16 ]
 ```
 
 ## API
@@ -42,7 +39,13 @@ Parameters:
 * `readable: Readable<T>` - A node.js-style readable stream. Streams v1-3 are supported (via node core `Readable.wrap()`).
 * `opts: Object` - Options to pass to the underlying writable stream. Default: `{ objectMode: true }`. No merging is performed.
 
-Returns: `AsyncIterator<T>`
+Returns: `AsyncIterator<T>` where `AsyncIterator<T>` is:
+
+```typescript
+interface AsyncIterator<T> {
+  next(): Promise<{ done: boolean; value: T }>
+}
+```
 
 ## Migrating from v2
 
