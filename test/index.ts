@@ -1,4 +1,4 @@
-import test, { TestContext } from 'ava'
+import test, { ExecutionContext } from 'ava'
 import streamToIterator = require('../lib/index')
 import intoStream = require('into-stream')
 
@@ -152,7 +152,7 @@ test('readme example 2', async t => {
 })
 
 async function checkLegacyIteration<T>(
-  t: TestContext,
+  t: ExecutionContext<any>,
   iteration: IteratorResult<Promise<T>>,
   expected: T
 ) {
@@ -162,7 +162,7 @@ async function checkLegacyIteration<T>(
 }
 
 function checkIteration<T>(
-  t: TestContext,
+  t: ExecutionContext<any>,
   iteration: IteratorResult<T>,
   expected: T
 ) {

@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/seangenabe/stream-to-iterator#readme",
   "engines": {
-    "node": ">=8.9"
+    "node": ">=8.9 <10"
   },
   "dependencies": {
     "p-defer": "1.0.0",
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@types/node": "^9.4.1",
-    "ava": "^1.0.0-beta.1",
+    "ava": "^1.0.0-rc.1",
     "into-stream": "^3.1.0",
     "typescript": "^2.7.1"
   },
