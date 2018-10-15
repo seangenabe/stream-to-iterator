@@ -1,5 +1,7 @@
 # stream-to-iterator
 
+SOFT DEPRECATION: Please use native `Readable` async iteration support instead, available from node.js v10.
+
 Converts a node.js stream into an iterator.
 
 [![Build Status](https://img.shields.io/travis/seangenabe/stream-to-iterator/master.svg?style=flat-square)](https://travis-ci.org/seangenabe/stream-to-iterator)
