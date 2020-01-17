@@ -79,13 +79,9 @@ class IteratorWritable<T = any> extends Writable
   }
 
   private end2(chunk?: T, enc?: string, cb?: (err: Error) => void): void {
-    super.end(chunk, enc, err => {
-      if (cb && err) {
-        cb(err)
-        return
-      }
-      this.endRequest()
-    })
+    enc
+      ? super.end(chunk, enc, () => this.endRequest())
+      : super.end(chunk, () => this.endRequest())
   }
 
   async next(): Promise<IteratorResult<T>> {

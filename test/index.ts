@@ -1,130 +1,133 @@
-import test, { ExecutionContext } from 'ava'
+import assert = require('assert')
+import { test, run } from 't0'
 import streamToIterator = require('../lib/index')
 import intoStream = require('into-stream')
 
-test('empty stream (legacy)', async t => {
-  let stream = intoStream.obj([])
+const { ok, deepEqual, equal } = assert.strict
+
+test('empty stream (legacy)', async () => {
+  let stream = intoStream.object([])
   let x = streamToIterator<never>(stream)[Symbol.iterator]()
   await x.init()
   let i = x.next()
-  t.true(i.done)
+  ok(i.done)
 })
 
-test('empty stream', async t => {
-  let stream = intoStream.obj([])
+test('empty stream', async () => {
+  let stream = intoStream.object([])
   let x = await streamToIterator<never>(stream)
   await x.init()
   let i = await x.next()
-  t.true(i.done)
+  ok(i.done)
 })
 
-test('stream one value (legacy)', async t => {
+test('stream one value (legacy)', async () => {
   let values = ['abc']
-  let stream = intoStream.obj(values)
+  let stream = intoStream.object(values)
   let x = streamToIterator<string>(stream)[Symbol.iterator]()
   await x.init()
   for (let value of values) {
     let iteration = x.next()
-    await checkLegacyIteration(t, iteration, value)
+    await checkLegacyIteration(iteration, value)
   }
-  t.true(x.next().done)
+  ok(x.next().done)
 })
 
-test('stream one value', async t => {
+test('stream one value', async () => {
   let values = ['abc']
-  let stream = intoStream.obj(values)
+  let stream = intoStream.object(values)
   let x = await streamToIterator<string>(stream)
 
   for (let value of values) {
     let iteration = await x.next()
-    checkIteration(t, iteration, value)
+    checkIteration(iteration, value)
   }
   const iteration = await x.next()
-  t.true(iteration.done)
+  ok(iteration.done)
 })
 
-test('stream some values (legacy)', async t => {
+test('stream some values (legacy)', async () => {
   let values = [5, 'b', Infinity, 'e', 'p']
-  let stream = intoStream.obj(values)
+  let stream = intoStream.object(values)
   let x = streamToIterator<number | string>(stream)[Symbol.iterator]()
   await x.init()
   for (let value of values) {
     let iteration = x.next()
-    await checkLegacyIteration(t, iteration, value)
+    await checkLegacyIteration(iteration, value)
   }
-  t.true(x.next().done)
+  ok(x.next().done)
 })
 
-test('stream some values', async t => {
+test('stream some values', async () => {
   let values = [5, 'b', Infinity, 'e', 'p']
-  let stream = intoStream.obj(values)
+  let stream = intoStream.object(values)
   let x = streamToIterator<number | string>(stream)
   for (let value of values) {
     let iteration = await x.next()
-    await checkIteration(t, iteration, value)
+    await checkIteration(iteration, value)
   }
-  t.true((await x.next()).done)
+  ok((await x.next()).done)
 })
 
-test('same value on fast iteration (legacy)', async t => {
+test('same value on fast iteration (legacy)', async () => {
   let values = [1, 2, 3]
-  let stream = intoStream.obj(values)
+  let stream = intoStream.object(values)
   let x = await streamToIterator<number>(stream)[Symbol.iterator]()
   await x.init()
   const r1 = x.next()
   const r2 = x.next()
   const v1 = await r1.value
   const v2 = await r2.value
-  t.false(r1.done)
-  t.false(r2.done)
-  t.is(v1, v2)
+  ok(!r1.done)
+  ok(!r2.done)
+  equal(v1, v2)
 })
 
-test('same value on fast iteration', async t => {
+test('same value on fast iteration', async () => {
   let values = [1, 2, 3]
-  let stream = intoStream.obj(values)
+  let stream = intoStream.object(values)
   let x = await streamToIterator<number>(stream)
   const p1 = x.next()
   const p2 = x.next()
   const r1 = await p1
   const r2 = await p2
-  t.false(r1.done)
-  t.false(r2.done)
-  t.is(r1.value, r2.value)
+  ok(!r1.done)
+  ok(!r2.done)
+  equal(r1.value, r2.value)
 })
 
-test('stream some values on non-object mode (legacy)', async t => {
+test('stream some values on non-object mode (legacy)', async () => {
   let values = [Buffer.from([65, 66, 67]), Buffer.from([68, 69])]
   let stream = intoStream(values)
   let x = streamToIterator<Buffer>(stream)[Symbol.iterator]()
   await x.init()
   for (let expected of values) {
     let iteration = x.next()
-    t.false(iteration.done)
+    ok(!iteration.done)
     let actual = await iteration.value
-    t.true(expected.equals(actual))
+    ok(expected.equals(actual))
   }
-  t.true(x.next().done)
+  ok(x.next().done)
 })
 
-test('stream some values on non-object mode', async t => {
+test('stream some values on non-object mode', async () => {
   let values = [Buffer.from([65, 66, 67]), Buffer.from([68, 69])]
   let stream = intoStream(values)
   let x = streamToIterator<Buffer>(stream)
 
   for (let expected of values) {
     let iteration = await x.next()
-    t.false(iteration.done)
-    t.true(expected.equals(iteration.value))
+    ok(!iteration.done)
+    ok(expected.equals(iteration.value))
   }
 
   const lastIteration = await x.next()
-  t.true(lastIteration.done)
+  ok(lastIteration.done)
 })
 
-test('readme example 1', async t => {
+test('readme example 1', async () => {
   const values = [2, 3, 4]
-  const readable = intoStream.obj(values)
+  const readable = intoStream.object(values)
   const iterator = await streamToIterator<number>(readable)
     [Symbol.iterator]()
     .init()
@@ -135,12 +138,12 @@ test('readme example 1', async t => {
     allValues.push(value * value)
   }
 
-  t.deepEqual(allValues, [4, 9, 16])
+  deepEqual(allValues, [4, 9, 16])
 })
 
-test('readme example 2', async t => {
+test('readme example 2', async () => {
   let values = [2, 3, 4]
-  let readable = intoStream.obj(values)
+  let readable = intoStream.object(values)
   let iterator = streamToIterator<number>(readable)
   let allValues: number[] = []
 
@@ -148,25 +151,22 @@ test('readme example 2', async t => {
     allValues.push(value * value)
   }
 
-  t.deepEqual(allValues, [4, 9, 16])
+  deepEqual(allValues, [4, 9, 16])
 })
 
 async function checkLegacyIteration<T>(
-  t: ExecutionContext<any>,
   iteration: IteratorResult<Promise<T>>,
   expected: T
 ) {
-  t.false(iteration.done)
+  ok(!iteration.done)
   let value = await iteration.value
-  t.deepEqual(value, expected)
+  deepEqual(value, expected)
 }
 
-function checkIteration<T>(
-  t: ExecutionContext<any>,
-  iteration: IteratorResult<T>,
-  expected: T
-) {
-  t.false(iteration.done)
+function checkIteration<T>(iteration: IteratorResult<T>, expected: T) {
+  ok(!iteration.done)
   let value = iteration.value
-  t.deepEqual(value, expected)
+  deepEqual(value, expected)
 }
+
+run()

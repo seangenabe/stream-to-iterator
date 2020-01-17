@@ -2,16 +2,6 @@
   "name": "stream-to-iterator",
   "version": "3.0.2-0",
   "description": "Convert a node.js stream into an iterator.",
-  "main": "lib/index.js",
-  "scripts": {
-    "build": "tsc --project .",
-    "test": "npm run build && node --harmony_async_iteration node_modules/ava/cli.js",
-    "lint": "eslint ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/seangenabe/stream-to-iterator.git"
-  },
   "keywords": [
     "iterator",
     "stream",
@@ -22,34 +12,45 @@
     "async",
     "promise"
   ],
-  "author": "Sean Genabe <seangenabe@outlook.com>",
-  "license": "MIT",
+  "homepage": "https://github.com/seangenabe/stream-to-iterator#readme",
   "bugs": {
     "url": "https://github.com/seangenabe/stream-to-iterator/issues"
   },
-  "homepage": "https://github.com/seangenabe/stream-to-iterator#readme",
-  "engines": {
-    "node": ">=8.9 <10"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seangenabe/stream-to-iterator.git"
   },
-  "dependencies": {
-    "p-defer": "1.0.0",
-    "pump": "^3.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^9.6.35",
-    "ava": "^1.0.0-beta.1",
-    "into-stream": "^3.1.0",
-    "typescript": "^2.9.2"
+  "license": "MIT",
+  "author": "Sean Genabe <seangenabe@outlook.com>",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc --project .",
+    "lint": "eslint .",
+    "test": "npm run build && node --harmony_async_iteration ./test/index.js"
   },
   "ava": {
+    "babel": false,
+    "compileEnhancements": false,
     "files": [
       "test/**/*.js"
     ],
     "sources": [
       "lib/**/*.js"
     ],
-    "timeout": "10s",
-    "babel": false,
-    "compileEnhancements": false
+    "timeout": "10s"
+  },
+  "dependencies": {
+    "p-defer": "1.0.0",
+    "pump": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.1.7",
+    "@types/pump": "^1.1.0",
+    "into-stream": "^5.1.1",
+    "t0": "^1.0.0",
+    "typescript": "^3.7.5"
+  },
+  "engines": {
+    "node": ">=8.9 <10"
   }
 }
