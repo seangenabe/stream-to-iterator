@@ -1,9 +1,7 @@
-import assert = require('assert')
+import { ok, deepEqual, equal } from 'assert'
 import { test, run } from 't0'
 import streamToIterator = require('../lib/index')
 import intoStream = require('into-stream')
-
-const { ok, deepEqual, equal } = assert.strict
 
 test('empty stream (legacy)', async () => {
   let stream = intoStream.object([])
