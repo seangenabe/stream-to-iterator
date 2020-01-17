@@ -26,7 +26,8 @@
   "scripts": {
     "build": "tsc --project .",
     "lint": "eslint .",
-    "test": "npm run build && node --harmony_async_iteration ./test/index.js"
+    "test": "npm run build && node --harmony_async_iteration ./test/index.js",
+    "prepublishOnly": "npm run build"
   },
   "ava": {
     "babel": false,
